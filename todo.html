@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To-Do List</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      background-image:url("https://png.pngtree.com/thumb_back/fh260/background/20201009/pngtree-science-or-technology-background-with-dynamic-particles-trendy-colorful-design-template-image_406781.jpg");
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    #app {
+      max-width: 600px;
+      margin: 50px auto;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+    }
+
+    #taskInput {
+      width: 70%;
+      padding: 8px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    #addTaskBtn {
+      padding: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #taskList {
+      list-style: none;
+      padding: 0;
+    }
+
+    .taskItem {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #ccc;
+      padding: 10px;
+    }
+
+    .taskItem input {
+      margin-right: 10px;
+    }
+
+    .completed {
+      text-decoration: line-through;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>To-Do List</h1>
+    <div>
+      <input type="text" id="taskInput" placeholder="Add a new task...">
+      <button id="addTaskBtn">Add Task</button>
+    </div>
+    <ul id="taskList"></ul>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Check for existing tasks in local storage
+      let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+      // Function to render tasks
+      function renderTasks() {
+        const taskList = document.getElementById('taskList');
+        taskList.innerHTML = '';
+
+        tasks.forEach((task, index) => {
+          const listItem = document.createElement('li');
+          listItem.className = 'taskItem';
+          listItem.innerHTML = `
+            <input type="checkbox" ${task.completed ? 'checked' : ''} data-index="${index}">
+            <span class="${task.completed ? 'completed' : ''}">${task.text}</span>
+            <button onclick="removeTask(${index})">Remove</button>
+          `;
+          taskList.appendChild(listItem);
+        });
+      }
+
+      // Function to save tasks to local storage
+      function saveTasks() {
+        localStorage.setItem('tasks', JSON.stringify(tasks));
+      }
+
+      // Function to add a new task
+      function addTask() {
+        const taskInput = document.getElementById('taskInput');
+        const text = taskInput.value.trim();
+
+        if (text !== '') {
+          tasks.push({ text, completed: false });
+          taskInput.value = '';
+          renderTasks();
+          saveTasks();
+        }
+      }
+
+      // Function to remove a task
+      window.removeTask = function (index) {
+        tasks.splice(index, 1);
+        renderTasks();
+        saveTasks();
+      };
+
+      // Function to toggle task completion
+      function toggleTaskCompletion(index) {
+        tasks[index].completed = !tasks[index].completed;
+        renderTasks();
+        saveTasks();
+      }
+
+      // Event listener for add task button
+      document.getElementById('addTaskBtn').addEventListener('click', addTask);
+
+      // Event listener for checkbox (delegated to the taskList)
+      document.getElementById('taskList').addEventListener('change', function (event) {
+        if (event.target.type === 'checkbox') {
+          const index = event.target.dataset.index;
+          toggleTaskCompletion(index);
+        }
+      });
+
+      // Initial render of tasks
+      renderTasks();
+    });
+  </script>
+</body>
+</html>
